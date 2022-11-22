@@ -7,7 +7,18 @@ public class LunarLanderAgentBase {
     //   1: Y component of the vector pointing to the middle of the platform from the lander
     //   2: X component of the velocity vector of the lander
     //   3: Y component of the velocity vector of the lander
-    static final int[] OBSERVATION_SPACE_RESOLUTION = {0, 0, 0, 0}; // TODO
+
+
+    //*** SETUP VALUES ***
+    static final int[] OBSERVATION_SPACE_RESOLUTION = {
+            0, // MUST BE AN ODD NUMBER!!!
+            0,
+            0,
+            0
+    };
+    static final int ROOT_VALUE = 2;
+
+
 
     final double[][] observationSpace;
     double[][][][][] qTable;
@@ -44,8 +55,63 @@ public class LunarLanderAgentBase {
         this.nIterations = nIterations;
     }
 
+    public static int rootQuantize(double state, double maxValue, int maxIndex) {
+        if(maxIndex % 2 == 0)
+        {
+            try {
+                throw new Exception("maxIndex is not an odd number!");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if(state == maxValue)
+        {
+            return maxIndex-1;
+        }
+        if(state < 0)
+        {
+            return (int)Math.round((maxIndex -1) / 2 - (Math.pow(-state, ROOT_VALUE) * ((maxIndex-1) / 2 + 0.50) / Math.pow(maxValue, ROOT_VALUE)));
+        }
+        return (int)Math.round(Math.pow(state, ROOT_VALUE) * ((maxIndex-1) / 2 + 0.50) / (Math.pow(maxValue, ROOT_VALUE)) + (maxIndex-1) / 2);
+    }
+
+    public static int linearSingleQuantize(double state, double maxValue, int maxIndex){
+        if(state == maxValue)
+        {
+            return maxIndex-1;
+        }
+        return (int)(state * maxIndex / maxValue);
+    }
+    public static int linearDoubleQuantize(double state, double maxValue, int maxIndex){
+        if(maxIndex % 2 == 0)
+        {
+            try {
+                throw new Exception("maxIndex is not an odd number!");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if(state == maxValue)
+        {
+            return maxIndex-1;
+        }
+        if(state < 0)
+        {
+            return (int)Math.round(((maxIndex - 1) / 2) - (-state * ((maxIndex - 1) / 2 + 0.50) / maxValue));
+        }
+        return (int)Math.round((state * ((maxIndex - 1) / 2 + 0.50) / maxValue) + ((maxIndex - 1) / 2) );
+    }
+
     public static int[] quantizeState(double[][] observationSpace, double[] state) {
-        return new int[observationSpace.length]; // TODO
+        int[] index = new int[observationSpace.length];
+
+        index[0] = rootQuantize(state[0], observationSpace[0][1], OBSERVATION_SPACE_RESOLUTION[0]);
+        index[1] = linearSingleQuantize(state[1], observationSpace[1][1], OBSERVATION_SPACE_RESOLUTION[1]);
+        index[2] = linearDoubleQuantize(state[2], observationSpace[2][1], OBSERVATION_SPACE_RESOLUTION[2]);
+        index[3] = linearDoubleQuantize(state[3], observationSpace[3][1], OBSERVATION_SPACE_RESOLUTION[3]);
+
+
+        return index;
     }
 
     public void epochEnd(double epochRewardSum) {
