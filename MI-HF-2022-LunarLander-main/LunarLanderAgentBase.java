@@ -11,10 +11,10 @@ public class LunarLanderAgentBase {
 
     //*** SETUP VALUES ***
     static final int[] OBSERVATION_SPACE_RESOLUTION = {
-            0, // MUST BE AN ODD NUMBER!!!
+            0, // MUST BE AN EVEN NUMBER!!!
             0,
-            0,
-            0
+            0, // MUST BE AN EVEN NUMBER!!!
+            0  // MUST BE AN EVEN NUMBER!!!
     };
     static final int ROOT_VALUE = 2;
 
@@ -110,7 +110,6 @@ public class LunarLanderAgentBase {
         index[2] = linearDoubleQuantize(state[2], observationSpace[2][1], OBSERVATION_SPACE_RESOLUTION[2]);
         index[3] = linearDoubleQuantize(state[3], observationSpace[3][1], OBSERVATION_SPACE_RESOLUTION[3]);
 
-
         return index;
     }
 
@@ -118,8 +117,29 @@ public class LunarLanderAgentBase {
         return; // TODO
     }
 
+    public static int argmax(double[] array) {
+        double max = array[0];
+        int re = 0;
+        for (int i = 1; i < array.length; i++) {
+            if (array[i] > max) {
+                max = array[i];
+                re = i;
+            }
+        }
+        return re;
+    }
+
     public void learn(double[] oldState, int action, double[] newState, double reward) {
-        return; // TODO
+        int[] oldQuantized = quantizeState(observationSpace, oldState);
+        int[] newQuantized = quantizeState(observationSpace, newState);
+        int newBestAction = argmax(qTable[newQuantized[0]][newQuantized[1]][newQuantized[2]][newQuantized[3]]);
+
+        //Bellman equation
+        qTable[oldQuantized[0]][oldQuantized[1]][oldQuantized[2]][oldQuantized[3]][action] =
+                        (1 - alpha) * qTable[oldQuantized[0]][oldQuantized[1]][oldQuantized[2]][oldQuantized[3]][action] +
+                        alpha * reward +
+                        alpha * gamma * qTable[newQuantized[0]][newQuantized[1]][newQuantized[2]][newQuantized[3]][newBestAction];
+        return;
     }
 
     public void trainEnd() {
