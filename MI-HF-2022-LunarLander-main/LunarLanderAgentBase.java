@@ -40,6 +40,8 @@ public class LunarLanderAgentBase {
     int epsilon_step = 100;
     double epsilon_decay = 0.9;
     int save_interval = 1000;
+    double epsilon_min = 0.40;
+    double epsilon_max = 1;
 
     int epoch = 0;
 
@@ -113,7 +115,12 @@ public class LunarLanderAgentBase {
         return index;
     }
 
+
+    //exploration_rate = min_exploration_rate + \
+    //    (max_exploration_rate - min_exploration_rate) * np.exp(-exploration_decay_rate*episode)
     public void epochEnd(double epochRewardSum) {
+        epoch++;
+        epsilon = epsilon_min + (epsilon_max - epsilon_min) * Math.exp(-epsilon_decay * epoch);
         return; // TODO
     }
 
@@ -130,6 +137,9 @@ public class LunarLanderAgentBase {
     }
 
     public void learn(double[] oldState, int action, double[] newState, double reward) {
+
+        iteration++;
+
         int[] oldQuantized = quantizeState(observationSpace, oldState);
         int[] newQuantized = quantizeState(observationSpace, newState);
         int newBestAction = argmax(qTable[newQuantized[0]][newQuantized[1]][newQuantized[2]][newQuantized[3]]);
@@ -139,7 +149,6 @@ public class LunarLanderAgentBase {
                         (1 - alpha) * qTable[oldQuantized[0]][oldQuantized[1]][oldQuantized[2]][oldQuantized[3]][action] +
                         alpha * reward +
                         alpha * gamma * qTable[newQuantized[0]][newQuantized[1]][newQuantized[2]][newQuantized[3]][newBestAction];
-        return;
     }
 
     public void trainEnd() {
