@@ -11,12 +11,12 @@ public class LunarLanderAgentBase {
 
     //*** SETUP VALUES ***
     static final int[] OBSERVATION_SPACE_RESOLUTION = {
-            81, // MUST BE AN ODD NUMBER!!!
-            80,
-            81, // MUST BE AN ODD NUMBER!!!
-            81  // MUST BE AN ODD NUMBER!!!
+            91, // MUST BE AN ODD NUMBER!!!
+            90,
+            91, // MUST BE AN ODD NUMBER!!!
+            91  // MUST BE AN ODD NUMBER!!!
     };
-    static final int ROOT_VALUE = 2;
+    static final int ROOT_VALUE = 4;
 
 
 
@@ -109,8 +109,8 @@ public class LunarLanderAgentBase {
 
         index[0] = rootQuantize(state[0], observationSpace[0][1], OBSERVATION_SPACE_RESOLUTION[0]);
         index[1] = linearSingleQuantize(state[1], observationSpace[1][1], OBSERVATION_SPACE_RESOLUTION[1]);
-        index[2] = linearDoubleQuantize(state[2], observationSpace[2][1], OBSERVATION_SPACE_RESOLUTION[2]);
-        index[3] = linearDoubleQuantize(state[3], observationSpace[3][1], OBSERVATION_SPACE_RESOLUTION[3]);
+        index[2] = rootQuantize(state[2], observationSpace[2][1], OBSERVATION_SPACE_RESOLUTION[2]);
+        index[3] = rootQuantize(state[3], observationSpace[3][1], OBSERVATION_SPACE_RESOLUTION[3]);
 
         return index;
     }
