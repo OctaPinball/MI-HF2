@@ -11,10 +11,10 @@ public class LunarLanderAgentBase {
 
     //*** SETUP VALUES ***
     static final int[] OBSERVATION_SPACE_RESOLUTION = {
-            0, // MUST BE AN EVEN NUMBER!!!
-            0,
-            0, // MUST BE AN EVEN NUMBER!!!
-            0  // MUST BE AN EVEN NUMBER!!!
+            81, // MUST BE AN ODD NUMBER!!!
+            80,
+            81, // MUST BE AN ODD NUMBER!!!
+            81  // MUST BE AN ODD NUMBER!!!
     };
     static final int ROOT_VALUE = 2;
 
@@ -25,7 +25,7 @@ public class LunarLanderAgentBase {
     final int[] envActionSpace;
     private final int nIterations;
 
-    double epsilon = 1.0;
+    double epsilon = 1.0f;
     int iteration = 0;
     boolean test = false;
 
@@ -35,13 +35,13 @@ public class LunarLanderAgentBase {
     double bestReward = -200;
     double lastReward = -200;
 
-    double alpha = 0.1;
-    double gamma = 0.6;
+    double alpha = 0.1; //Learning rate
+    double gamma = 0.99; //Discount rate
     int epsilon_step = 100;
-    double epsilon_decay = 0.9;
+    double epsilon_decay = 0.9999f;
     int save_interval = 1000;
-    double epsilon_min = 0.40;
-    double epsilon_max = 1;
+    double epsilon_min = 0.40f;
+    double epsilon_max = 1.0f;
 
     int epoch = 0;
 
@@ -120,8 +120,11 @@ public class LunarLanderAgentBase {
     //    (max_exploration_rate - min_exploration_rate) * np.exp(-exploration_decay_rate*episode)
     public void epochEnd(double epochRewardSum) {
         epoch++;
-        epsilon = epsilon_min + (epsilon_max - epsilon_min) * Math.exp(-epsilon_decay * epoch);
-        return; // TODO
+        //epsilon = epsilon_min + (epsilon_max - epsilon_min) * Math.exp(-epsilon_decay * epoch);
+        if(epsilon > epsilon_min)
+            epsilon*=epsilon_decay;
+        if(epoch < 10000 || epoch > 26000)
+            System.out.println("Current epoch: " + epoch + " Value: " + epochRewardSum + " Epsilon: " + epsilon);
     }
 
     public static int argmax(double[] array) {
@@ -138,7 +141,7 @@ public class LunarLanderAgentBase {
 
     public void learn(double[] oldState, int action, double[] newState, double reward) {
 
-        iteration++;
+        //iteration++;
 
         int[] oldQuantized = quantizeState(observationSpace, oldState);
         int[] newQuantized = quantizeState(observationSpace, newState);
@@ -153,7 +156,7 @@ public class LunarLanderAgentBase {
 
     public void trainEnd() {
         // ... TODO
-        qTable = null; // TODO
+        //qTable = null; // TODO
         test = true;
     }
 }
