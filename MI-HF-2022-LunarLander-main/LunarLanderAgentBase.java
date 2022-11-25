@@ -11,10 +11,10 @@ public class LunarLanderAgentBase {
 
     //*** SETUP VALUES ***
     static final int[] OBSERVATION_SPACE_RESOLUTION = {
-            3, // MUST BE AN ODD NUMBER!!!
-            3,
-            3, // MUST BE AN ODD NUMBER!!!
-            3  // MUST BE AN ODD NUMBER!!!
+            5, // MUST BE AN ODD NUMBER!!!
+            5,
+            5, // MUST BE AN ODD NUMBER!!!
+            5  // MUST BE AN ODD NUMBER!!!
     };
     static final int ROOT_VALUE = 4;
 
@@ -39,7 +39,9 @@ public class LunarLanderAgentBase {
     double alpha_min = 0.1f;
     double alpha_decay = 0.9999f;
     double alpha_minus = 0.05f;
-    double gamma = 0.99; //Discount rate
+    double gamma = 0.5; //Discount rate
+    double gamma_max = 0.975f;
+    double gamma_step = 0.025f;
     int epsilon_step = 100;
     double epsilon_decay = 0.9999f;
     int save_interval = 1000;
@@ -135,6 +137,11 @@ public class LunarLanderAgentBase {
     public void epochEnd(double epochRewardSum) {
         epoch++;
 
+        if(gamma < gamma_max && epoch % 1000 == 0)
+        {
+            gamma+=gamma_step;
+        }
+
         if(alpha > alpha_min && epoch % 1000 == 0)
         {
             alpha-=alpha_minus;
@@ -150,8 +157,8 @@ public class LunarLanderAgentBase {
             if(epsilon > epsilon_min)
                 epsilon*=epsilon_decay;
         }
-        if(epoch < 10000 || epoch > 20000)
-            System.out.println("Current epoch: " + epoch + " Value: " + epochRewardSum + " Epsilon: " + epsilon + " Aplha: " + alpha);
+        //if(epoch < 10000 || epoch > 20000)
+        //    System.out.println("Current epoch: " + epoch + " Value: " + epochRewardSum + " Epsilon: " + epsilon + " Aplha: " + alpha);
     }
 
     public static int argmax(double[] array) {
