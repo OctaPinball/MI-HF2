@@ -11,9 +11,9 @@ public class LunarLanderAgentBase {
 
     //*** SETUP VALUES ***
     static final int[] OBSERVATION_SPACE_RESOLUTION = {
-            5, // MUST BE AN ODD NUMBER!!!
+            21, // MUST BE AN ODD NUMBER!!!
             5,
-            5, // MUST BE AN ODD NUMBER!!!
+            11, // MUST BE AN ODD NUMBER!!!
             5  // MUST BE AN ODD NUMBER!!!
     };
     static final int ROOT_VALUE = 4;
