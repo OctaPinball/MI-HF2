@@ -11,14 +11,14 @@ public class LunarLanderAgentBase {
 
     //*** SETUP VALUES ***
     static final int[] OBSERVATION_SPACE_RESOLUTION = {
-            81, // MUST BE AN ODD NUMBER!!!
-            80,
-            81, // MUST BE AN ODD NUMBER!!!
-            81  // MUST BE AN ODD NUMBER!!!
+            31, // MUST BE AN ODD NUMBER!!!
+            31,
+            9, // MUST BE AN ODD NUMBER!!!
+            9  // MUST BE AN ODD NUMBER!!!
     };
-    static final int ROOT_VALUE = 2;
+    static final int ROOT_VALUE = 4;
 
-
+    static  final int epsilon_type = 1;
 
     final double[][] observationSpace;
     double[][][][][] qTable;
@@ -35,13 +35,22 @@ public class LunarLanderAgentBase {
     double bestReward = -200;
     double lastReward = -200;
 
-    double alpha = 0.1; //Learning rate
-    double gamma = 0.99; //Discount rate
+    double alpha = 1f; //Learning rate
+    double alpha_min = 0.1f;
+    double alpha_decay = 0.9999f;
+    double alpha_minus = 0.05f;
+    double gamma = 0.813; //Discount rate
+    double gamma_max = 0.975f;
+    double gamma_step = 0.025f;
     int epsilon_step = 100;
     double epsilon_decay = 0.9999f;
     int save_interval = 1000;
-    double epsilon_min = 0.40f;
+    double epsilon_min = 0.4f;
     double epsilon_max = 1.0f;
+
+    double e_epsilon_min = 0.1f;
+    double e_epsilon_max = 1;
+    double e_epsilon_decay = 0.00015f;
 
     int epoch = 0;
 
@@ -107,10 +116,17 @@ public class LunarLanderAgentBase {
     public static int[] quantizeState(double[][] observationSpace, double[] state) {
         int[] index = new int[observationSpace.length];
 
-        index[0] = rootQuantize(state[0], observationSpace[0][1], OBSERVATION_SPACE_RESOLUTION[0]);
+        index[0] = linearDoubleQuantize(state[0], observationSpace[0][1], OBSERVATION_SPACE_RESOLUTION[0]);
         index[1] = linearSingleQuantize(state[1], observationSpace[1][1], OBSERVATION_SPACE_RESOLUTION[1]);
         index[2] = linearDoubleQuantize(state[2], observationSpace[2][1], OBSERVATION_SPACE_RESOLUTION[2]);
         index[3] = linearDoubleQuantize(state[3], observationSpace[3][1], OBSERVATION_SPACE_RESOLUTION[3]);
+        for(int i = 0; i < 4; i++)
+        {
+            if(index[i] >= OBSERVATION_SPACE_RESOLUTION[i])
+            {
+                index[i] = OBSERVATION_SPACE_RESOLUTION[i] - 1;
+            }
+        }
 
         return index;
     }
@@ -120,11 +136,29 @@ public class LunarLanderAgentBase {
     //    (max_exploration_rate - min_exploration_rate) * np.exp(-exploration_decay_rate*episode)
     public void epochEnd(double epochRewardSum) {
         epoch++;
-        //epsilon = epsilon_min + (epsilon_max - epsilon_min) * Math.exp(-epsilon_decay * epoch);
-        if(epsilon > epsilon_min)
-            epsilon*=epsilon_decay;
-        if(epoch < 10000 || epoch > 26000)
-            System.out.println("Current epoch: " + epoch + " Value: " + epochRewardSum + " Epsilon: " + epsilon);
+/*
+        if(gamma < gamma_max && epoch % 1000 == 0)
+        {
+            gamma+=gamma_step;
+        }
+*/
+        if(alpha > alpha_min && epoch % 1000 == 0)
+        {
+            alpha-=alpha_minus;
+            //alpha*=alpha_decay;
+        }
+
+        if(epsilon_type == 0)
+        {
+            epsilon = e_epsilon_min + (e_epsilon_max - e_epsilon_min) * Math.exp(-e_epsilon_decay * epoch);
+        }
+        else
+        {
+            if(epsilon > epsilon_min)
+                epsilon*=epsilon_decay;
+        }
+        //if(epoch < 10000 || epoch > 20000)
+        //    System.out.println("Current epoch: " + epoch + " Value: " + epochRewardSum + " Epsilon: " + epsilon + " Aplha: " + alpha);
     }
 
     public static int argmax(double[] array) {
@@ -155,8 +189,6 @@ public class LunarLanderAgentBase {
     }
 
     public void trainEnd() {
-        // ... TODO
-        //qTable = null; // TODO
         test = true;
     }
 }
