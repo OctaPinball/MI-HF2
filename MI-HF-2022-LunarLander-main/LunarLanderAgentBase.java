@@ -11,10 +11,10 @@ public class LunarLanderAgentBase {
 
     //*** SETUP VALUES ***
     static final int[] OBSERVATION_SPACE_RESOLUTION = {
-            21, // MUST BE AN ODD NUMBER!!!
-            5,
-            11, // MUST BE AN ODD NUMBER!!!
-            5  // MUST BE AN ODD NUMBER!!!
+            31, // MUST BE AN ODD NUMBER!!!
+            31,
+            9, // MUST BE AN ODD NUMBER!!!
+            9  // MUST BE AN ODD NUMBER!!!
     };
     static final int ROOT_VALUE = 4;
 
@@ -39,7 +39,7 @@ public class LunarLanderAgentBase {
     double alpha_min = 0.1f;
     double alpha_decay = 0.9999f;
     double alpha_minus = 0.05f;
-    double gamma = 0.5; //Discount rate
+    double gamma = 0.813; //Discount rate
     double gamma_max = 0.975f;
     double gamma_step = 0.025f;
     int epsilon_step = 100;
@@ -116,10 +116,10 @@ public class LunarLanderAgentBase {
     public static int[] quantizeState(double[][] observationSpace, double[] state) {
         int[] index = new int[observationSpace.length];
 
-        index[0] = rootQuantize(state[0], observationSpace[0][1], OBSERVATION_SPACE_RESOLUTION[0]);
+        index[0] = linearDoubleQuantize(state[0], observationSpace[0][1], OBSERVATION_SPACE_RESOLUTION[0]);
         index[1] = linearSingleQuantize(state[1], observationSpace[1][1], OBSERVATION_SPACE_RESOLUTION[1]);
-        index[2] = rootQuantize(state[2], observationSpace[2][1], OBSERVATION_SPACE_RESOLUTION[2]);
-        index[3] = rootQuantize(state[3], observationSpace[3][1], OBSERVATION_SPACE_RESOLUTION[3]);
+        index[2] = linearDoubleQuantize(state[2], observationSpace[2][1], OBSERVATION_SPACE_RESOLUTION[2]);
+        index[3] = linearDoubleQuantize(state[3], observationSpace[3][1], OBSERVATION_SPACE_RESOLUTION[3]);
         for(int i = 0; i < 4; i++)
         {
             if(index[i] >= OBSERVATION_SPACE_RESOLUTION[i])
@@ -136,12 +136,12 @@ public class LunarLanderAgentBase {
     //    (max_exploration_rate - min_exploration_rate) * np.exp(-exploration_decay_rate*episode)
     public void epochEnd(double epochRewardSum) {
         epoch++;
-
+/*
         if(gamma < gamma_max && epoch % 1000 == 0)
         {
             gamma+=gamma_step;
         }
-
+*/
         if(alpha > alpha_min && epoch % 1000 == 0)
         {
             alpha-=alpha_minus;
